@@ -107,11 +107,7 @@ class ParserController extends Controller
      */
     private function getSiteData($ids, $type = 6)
     {
-        $client = new Client();
-
-        $guzzleClient = new GuzzleClient($this->parserSettings);
-        $client->setClient($guzzleClient);
-
+        $client = $this->initClient();
         $crawler = $client->request('GET', 'http://www.kis.nfp.gov.ua');
         $_viewState = $crawler->filter('#__VIEWSTATE')->attr('value');
         $_viewStateGenerate = $crawler->filter('#__VIEWSTATEGENERATOR')->attr('value');
@@ -198,11 +194,8 @@ class ParserController extends Controller
      */
     private function getPawnshopBranch($url)
     {
-        $client = new Client();
-        $guzzleClient = new GuzzleClient($this->parserSettings);
-        $client->setClient($guzzleClient);
+        $crawler = $this->initClient()->request('GET', $url);
 
-        $crawler = $client->request('GET', $url);
         $branches = collect([]);
         $getBranches = $crawler->filter('.zebra tr');
         if ($getBranches) {
@@ -278,5 +271,19 @@ class ParserController extends Controller
 
             }
         }
+    }
+
+    /**
+     * initializing parsing client
+     * @return Client
+     */
+    private function initClient()
+    {
+        $client = new Client();
+
+        $guzzleClient = new GuzzleClient($this->parserSettings);
+        $client->setClient($guzzleClient);
+
+        return $client;
     }
 }
